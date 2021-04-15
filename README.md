@@ -7,7 +7,7 @@ In Windows PowerShell, or CMD type:
 <code> py main.py </code>
 
 Arguments: <br />
-<code> [optional] -d <Date in dd-mm-yyyy format></code>
+<code> [optional] -d \<Date in dd-mm-yyyy format\></code>
   
 ## Todo
 1. The tesseract method alone is not reliable enough to get the list of presentees, so still have to devise another method that will go in-hand with tesseract one.
