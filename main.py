@@ -20,9 +20,12 @@ from datetime import datetime
 import time
 startTime = datetime.now()
 import argparse
+import yaml
+
 from google_api_interface import googleAPI
-from img_to_text import tesseract
-from dataCompare import dataHandler
+from dataHandler import dataHandler
+
+
 
 # ===========================================================================================================================
 # This is Argument Parser.
@@ -34,24 +37,43 @@ parser = argparse.ArgumentParser(description='MathsAttendanceMarker')
 parser.add_argument('-d', metavar='date',nargs='?', type=str, help='Date to add (default = '+ str(datetime.now().strftime("%d-%m-%Y")) +' sec)', default=datetime.now().strftime("%d-%m-%Y"))
 theDateToAdd = str(parser.parse_args().d)
 
+with open("config.yml", "r") as ymlfile:
+    cfg = yaml.safe_load(ymlfile)
+
 # ===========================================================================================================================
 # Instantiate all the Classes and connect to google sheets
 # ===========================================================================================================================
-API = googleAPI()
-tesseract = tesseract()
-data = dataHandler()
+API = googleAPI(cfg)
+data = dataHandler(cfg)
+
 API.connectToGoogle()
 
 # ===========================================================================================================================
-# get the text from images in the directory "images/"
-# ===========================================================================================================================
-getTextFromImg = tesseract.getTextFromImg("images/")
+
+getMethod = input("Which method to use: [Image to Text(I), Get data by joining meet(M), Hybrid of both methods (H)]: ").upper()
+
+discrepancies = []
+
+if(getMethod == "M"):    
+    meetLink = input("Enter Google Meet Link: ")
+    meetData, tesseractData = data.dataCollector("N", "M", meetLink)
+    prepdData = data.getPreparedData(meetData)
+
+elif(getMethod == "I"):    
+    ssOrNot = input("Take Screenshots automatically (Y/N): ").upper()
+    meetLink = input("Enter Google Meet Link: ") if ssOrNot == "Y" else ""
+
+    meetData, tesseractData = data.dataCollector(ssOrNot, "I", meetLink)
+    prepdData = data.getPreparedData(tesseractData)
+
+else:
+    ssOrNot = input("Take Screenshots automatically (Y/N): ")
+    meetLink = input("Enter Google Meet Link: ")    
+    meetData, tesseractData = data.dataCollector(ssOrNot, "H", meetLink)
+    prepdData, discrepancies = data.getHybridPreparedData(tesseractData, meetData)
+
 
 # ===========================================================================================================================
-# get data already prepared to be uploaded to sheets.
-# ===========================================================================================================================
-prepdData = data.getPreparedData(getTextFromImg)
-#print(getTextFromImg)
 
 # ===========================================================================================================================
 # get the empty column to update the data to, in google sheets
@@ -73,18 +95,23 @@ while(uploadTheData != "Y" and isExit != 1):
     print(str(datetime.now()) + ": Upload Cancelled")
 
     viewTheData = input("View Data? (Y/N) ").upper()
-    if(viewTheData == "Y"):
-        print("Text Found From Images:")
-        print(getTextFromImg)
-        print("Final Prepared Data:")
-        print(prepdData)
+    if(viewTheData == "Y"):        
+        print(" ")    
+        print("Image to Text Data: ")
+        print(" ")        
+        for n in tesseractData:
+            print(n)
+            
+        print(" ")    
+        print("Meet Data: ")
+        print(" ")
+        for m in meetData:
+            print(m)
 
     # ===========================================================================================================================
     # Give final messages and time taken to do everything
     # ===========================================================================================================================    
-    endTime = datetime.now()
-    print("Script took " + str(endTime - startTime) + " seconds to complete")
-    print(str(datetime.now()) + ": EVERYTHING DONE :) ")
+    endTime = datetime.now()   
     uploadTheData = input("Upload Data? (Y/N/exit) ").upper()
     if(uploadTheData == "EXIT"):
         isExit = 1
@@ -93,8 +120,17 @@ while(uploadTheData != "Y" and isExit != 1):
 if(isExit != 1):
     print(str(datetime.now()) + ": Sheets API: uploading data")
     cellsAffected = API.updateSheet("Sheet1!" + emptyColumn + "1:" + emptyColumn + str(len(prepdData)), prepdData)
-
     print(str(datetime.now()) + ": Sheets API: " + str(cellsAffected) + " cells updated")
-    endTime = datetime.now()
-    print("Script took " + str(endTime - startTime) + " seconds to complete")
-    print(str(datetime.now()) + ": EVERYTHING DONE :) ")
+
+if(getMethod == "H"):
+    print(" ")
+    print("Discrepancies: ")
+    if(len(discrepancies) > 0):
+        print(discrepancies)
+    else:
+        print("None")
+    print(" ")
+
+endTime = datetime.now()
+print(str(datetime.now()) + ": EVERYTHING DONE :) ")
+print("Script took " + str(endTime - startTime) + " seconds to complete")

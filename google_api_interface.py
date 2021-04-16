@@ -10,13 +10,11 @@ from datetime import datetime
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-# the Sheet to update data to.
-# TODO: Update this to get the sheet id dynamically, and not statically declared.
-sheetID = "<YourSheetID>"
-
 class googleAPI:
 
-    def __init__(self):
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.sheetID = cfg["sheet"]["id"]
         self.sheet = ""
 
     # ==================================================================================================================================
@@ -64,7 +62,7 @@ class googleAPI:
             'values': values       # this can have additional options to edit how data is being uploaded, I am using no special params
         }
         result = self.sheet.values().update(        # .update() method of Google API to update the sheets
-                spreadsheetId = sheetID,            # the sheet ID being updated.
+                spreadsheetId = self.sheetID,       # the sheet ID being updated.
                 range = range,                      # the range to update the values to
                 valueInputOption = "USER_ENTERED",  # making this as "USER_ENTERED" updates the data as if it is being typed into the sheet itself.
                 body = body                         # the things to upload to the sheet
@@ -124,7 +122,7 @@ class googleAPI:
         print(str(datetime.now()) + ": Sheets API: getting empty column")
 
         result = self.sheet.values().get(           # .get() method of sheets API gets the data from a certain range. Only non-empty rows and columns are returned
-                spreadsheetId = sheetID,            # the sheet to get data from
+                spreadsheetId = self.sheetID,       # the sheet to get data from
                 range = "Sheet1!A1:AB117"           # get All Data from a very large random range
             ).execute()                             # execute the request using Google Sheets API
 
