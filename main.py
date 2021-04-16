@@ -11,6 +11,9 @@
 #    - google_api_interface
 #    - pytesseract
 #    - cv2
+#    - pyscreenshot
+#    - pygetwindow
+#    - pyautogui
 #
 # To contribute, contact anhatsingh2001@gmail.com
 # ==================================================================================================================================================================================================================================
@@ -21,7 +24,6 @@ import time
 startTime = datetime.now()
 import argparse
 import yaml
-
 from google_api_interface import googleAPI
 from dataHandler import dataHandler
 
@@ -101,7 +103,7 @@ while(uploadTheData != "Y" and isExit != 1):
         print(" ")        
         for n in tesseractData:
             print(n)
-            
+
         print(" ")    
         print("Meet Data: ")
         print(" ")

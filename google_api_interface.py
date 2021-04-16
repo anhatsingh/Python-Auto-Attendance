@@ -129,14 +129,19 @@ class googleAPI:
         rows = result.get('values', [])             # get the result obtained as an list of lists
         numberOfColumnsFilled = len(rows[0])        # get the first array from the list of lists
 
-        # TODO: Update the following method to work on any letter combination, and not upto 676.
-
-        listOfAlphabets = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")    # make a list of aplhabets.
-        firstAlphabet = int(numberOfColumnsFilled/26) - 1       # get the integral part of column name
-        secondAlphabet = (numberOfColumnsFilled%26)             # get the Remainder part of column name
-        
-        emptyColumn = (listOfAlphabets[firstAlphabet] if firstAlphabet >= 0 else "") + listOfAlphabets[secondAlphabet] # if integral part is 0, we only need the Remainder part.
+        emptyColumn = self.getLetter(numberOfColumnsFilled)
         print(str(datetime.now()) + ": Sheets API: empty column found '" + emptyColumn + "'")
 
         return emptyColumn                          # return the column to be updated.
     
+
+    def getLetter(self, number):        
+        listOfAlphabets = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")    # make a list of aplhabets.
+        if(number >= 26):            
+            theLetter = self.getLetter(int(number/26) - 1)
+            number = int(number%26)
+        else:
+            theLetter = ""
+        print(number%26)
+        theLetter = theLetter + listOfAlphabets[(number%26)]
+        return theLetter
