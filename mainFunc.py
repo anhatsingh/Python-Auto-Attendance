@@ -1,0 +1,77 @@
+from db import dbms
+from google_api_interface import googleAPI
+from dataHandler import dataHandler
+from jsonHandler import jsonHandler
+
+myDb = dbms()
+
+def build_Data(values, log):
+    myDate = values["dateToAdd"]
+    
+    compiledData = {
+        "date": values["dateToAdd"],
+        "credentials": {
+            "username" : myDb.getFromSettings("type", "google")[0][2],
+            "password" : myDb.getFromSettings("type", "google")[1][2]
+            },
+        "sheet_id": myDb.getFromSettings("name", values["subject"])[0][2],
+        "method": "I" if values["I"] else ("M" if values["M"] else ("H" if values["H"] else "U")),
+        "whatToDo": "local" if values["saveData"] else "remote",
+        "takeSS": "Y" if values["-SS-"] else "N",
+        "meetLink": values["meetLink"],
+        "folder": values["-FOLDER-"]
+    }
+
+    #log.write("------------------------------------------------------------------------------ Config -------------------------------------------------------------------------------")
+    #log.write("Date: " + compiledData["date"])
+    #log.write("Subject: " + values["subject"])
+    #log.write("Sheet ID: " + compiledData["sheet_id"])
+    #log.write("Method: " + compiledData["method"])
+    #log.write("Save at : " + compiledData["whatToDo"])
+    #log.write("Take Screenshot? " + compiledData["takeSS"])
+    #log.write("Folder: " + compiledData["folder"])
+    #log.write("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+
+    return compiledData
+
+def main(values, log):
+    inputData = build_Data(values, log)
+
+    if(inputData["method"] != "U"):
+        data = dataHandler(inputData["credentials"]["username"], inputData["credentials"]["password"], log)
+        meetData, tesseractData = data.dataCollector(inputData["takeSS"], inputData["method"], inputData["meetLink"], inputData["folder"])
+        prepdData, discrepancies = data.getPresentAbsentData(inputData["method"], tesseractData, meetData)
+        prepdData.insert(0, [inputData["date"]])
+    else:
+        meetData, tesseractData, prepdData, discrepancies = jsonHandler("data\\ready_to_upload\\").getData(inputData["date"], inputData["sheet_id"])
+    
+    if(meetData != None):   
+            
+        log.write("Re-check the following roll numbers for attendance: ", textColor="blue")    
+        log.write(discrepancies, textColor="blue")    
+
+        if(inputData["whatToDo"] == "remote"):
+            API = googleAPI(inputData["sheet_id"], log)
+            API.connectToGoogle()
+            emptyColumn = API.getCoulumnToAddTo()
+            
+            prepdData.extend([
+                [""], 
+                ['=CONCATENATE(COUNTIF('+emptyColumn+'2:'+emptyColumn+'117, "Present"), "/116")'], 
+                ['=CONCATENATE(COUNTIF('+emptyColumn+'2:'+emptyColumn+'117, "Absent"), "/116")']
+            ])
+
+            log.write("Uploading data")
+            cellsAffected = API.updateSheet("Sheet1!" + emptyColumn + "1:" + emptyColumn + str(len(prepdData)), prepdData)
+            log.write(str(cellsAffected) + " cells updated")
+            jsonHandler('data\\logs\\').prepLocalSave(inputData, values, meetData, tesseractData, prepdData, discrepancies)
+
+        elif(inputData["whatToDo"] == "local"):
+            log.write("Saving Data Locally")
+            jsonHandler('data\\ready_to_upload\\').prepLocalSave(inputData, values, meetData, tesseractData, prepdData, discrepancies)
+        
+        log.write("Everything Done", textColor="green")
+
+    else:
+        log.write("No saved data found for: " + inputData["date"] + ", Subject: " + values["subject"], textColor="white", backgroundColor="red")       
+    log.write("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------")

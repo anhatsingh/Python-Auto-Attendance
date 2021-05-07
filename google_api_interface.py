@@ -12,10 +12,10 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 class googleAPI:
 
-    def __init__(self, cfg):
-        self.cfg = cfg
-        self.sheetID = cfg["sheet"]["id"]
+    def __init__(self, sheetId, logger):
+        self.sheetID = sheetId
         self.sheet = ""
+        self.log = logger
 
     # ==================================================================================================================================
     # connectToGoogle() method returns <void>
@@ -28,7 +28,7 @@ class googleAPI:
     # ==================================================================================================================================
 
     def connectToGoogle(self):
-        print(str(datetime.now()) + ": Google: connecting to Google and Google Sheets API")
+        self.log.write("Connecting to Google Sheets")
         creds = None
         # The file token.json stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
@@ -117,9 +117,7 @@ class googleAPI:
     # I can only get two lettered columns max i.e. upto "ZZ" or upto N = 26*26 = 676
     # ==================================================================================================================================
 
-    def getCoulumnToAddTo(self):
-
-        print(str(datetime.now()) + ": Sheets API: getting empty column")
+    def getCoulumnToAddTo(self):        
 
         result = self.sheet.values().get(           # .get() method of sheets API gets the data from a certain range. Only non-empty rows and columns are returned
                 spreadsheetId = self.sheetID,       # the sheet to get data from
@@ -127,10 +125,14 @@ class googleAPI:
             ).execute()                             # execute the request using Google Sheets API
 
         rows = result.get('values', [])             # get the result obtained as an list of lists
-        numberOfColumnsFilled = len(rows[0])        # get the first array from the list of lists
+        
+        if(len(rows) > 0):
+            numberOfColumnsFilled = len(rows[0])        # get the first array from the list of lists
+        else:
+            numberOfColumnsFilled = 0
 
         emptyColumn = self.getLetter(numberOfColumnsFilled)
-        print(str(datetime.now()) + ": Sheets API: empty column found '" + emptyColumn + "'")
+        self.log.write("Uploading data to column '" + emptyColumn + "'")
 
         return emptyColumn                          # return the column to be updated.
     
@@ -141,7 +143,16 @@ class googleAPI:
             theLetter = self.getLetter(int(number/26) - 1)
             number = int(number%26)
         else:
-            theLetter = ""
-        print(number%26)
+            theLetter = ""        
         theLetter = theLetter + listOfAlphabets[(number%26)]
         return theLetter
+
+    
+    def createSpreadsheet(self, title):
+        spreadsheet = {
+            'properties': {
+                'title': title
+            }
+        }
+        spreadsheet = self.sheet.create(body=spreadsheet,fields='spreadsheetId').execute()
+        return spreadsheet.get('spreadsheetId')

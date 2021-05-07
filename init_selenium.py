@@ -6,18 +6,18 @@ from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 
 class seleniumControl:
-    def __init__(self, instanceNumber):
-        self.instanceNumber = instanceNumber                
+    def __init__(self, instanceNumber, logger):
+        self.instanceNumber = instanceNumber 
+        self.log = logger               
 
-    def igniteSelenium(self):
-        print(str(datetime.now()) + ": Selenium: initiating selenium library")
+    def igniteSelenium(self):        
         opt = Options()
         opt.add_argument("--disable-infobars")
         opt.add_argument("start-maximized")
         opt.add_argument("--disable-extensions")        
         # Pass the argument 1 to allow and 2 to block
 
-        print(str(datetime.now()) + ": Selenium: setting chrome preferences")
+        self.log.write("Opening Chrome browser")
         opt.add_experimental_option("prefs", { \
             "profile.default_content_setting_values.media_stream_mic": 1, 
             "profile.default_content_setting_values.media_stream_camera": 1,
@@ -30,10 +30,9 @@ class seleniumControl:
         opt.add_experimental_option("useAutomationExtension", False)
         
 
-        #driver = webdriver.Chrome(chrome_options=opt, executable_path=r'C:\Utility\BrowserDrivers\chromedriver.exe')
-        print(str(datetime.now()) + ": Selenium: starting chrome browser")
+        #driver = webdriver.Chrome(chrome_options=opt, executable_path=r'C:\Utility\BrowserDrivers\chromedriver.exe')        
         driver = webdriver.Chrome(chrome_options = opt, executable_path=r'chromedriver.exe')
         action = ActionChains(driver)
-
-        print(str(datetime.now()) + ": Selenium: selenium started successfully")
+        self.log.write("Browser Opened")
+        
         return(driver,action, Keys)

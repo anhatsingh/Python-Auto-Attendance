@@ -9,11 +9,10 @@ from datetime import datetime
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
-
 class tesseract:
 
-    def __init__(self):
-        self.hello = 1
+    def __init__(self, logger):
+        self.log = logger
 
     # ==================================================================================================================================
     # getTextFromImg() method return <list> "text extracted from images"
@@ -23,12 +22,10 @@ class tesseract:
 
     def getTextFromImg(self, directory):        
 
-        print(str(datetime.now()) + ": Tesseract: making image list")
+        self.log.write("Extracting text from images")
 
         images = [f for f in listdir(directory) if isfile(join(directory, f))]      # get a list of all images in the given directory
         extractedText = []
-
-        print(str(datetime.now()) + ": Tesseract: converting images to text")
 
         for i in images:    
             eachImg = cv2.imread(directory + i)                                     # read each image using python's library.
@@ -39,7 +36,6 @@ class tesseract:
                 extractedText.append(a)
         
         unwantedElements = {'\\', 'ns', '<', '—', '(', ')', '&', 'ee', 'g', 'ee', 'a', 'b'}
-        print(str(datetime.now()) + ": Tesseract: removing unwanted elements from text")
         extractedText = [element for element in extractedText if element not in unwantedElements]   # this simply removes all the unwanted elements from the extractedText[] list.
 
         finalList = []
@@ -47,5 +43,4 @@ class tesseract:
             pattern = re.compile(r'[\W_]+')
             finalList.append(pattern.sub('', i))
         
-        print(str(datetime.now()) + ": Tesseract: text extracted")
         return finalList                                                            # return this final processed list

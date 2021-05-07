@@ -1,19 +1,21 @@
 import time
 from datetime import datetime
 from meet import meetHandler
-from img_to_text import tesseract
+import img_to_text
 from init_selenium import seleniumControl
-tesseract = tesseract()
 import pyscreenshot as ImageGrab
 import pygetwindow as gw
 import pyautogui
 import math
 import os
+from jsonHandler import jsonHandler
 
 class dataHandler:
 
-    def __init__(self, cfg):
-        self.cfg = cfg
+    def __init__(self, username, password, logger):
+        self.username = username
+        self.password = password
+        self.log = logger        
 
     #change this method to get data dynamically from google sheets only, and remove the hard-coded version here.
         self.classmates = {
@@ -148,13 +150,12 @@ class dataHandler:
 
 
     def getPreparedData(self, presentees):
-        print(str(datetime.now()) + ": Data: making absentees list")
+        self.log.write("Making absentees list")
 
         # from "presentees", make a new list of students that are not present in presentees but are in classmates
         absentees = [a for a in self.classmates if a not in presentees]
         prepdData = []
-
-        print(str(datetime.now()) + ": Data: preparing final list to upload to sheets")
+        
         for i in self.classmates:           # Iterate through "classmates"
             count = 0
             for j in absentees:             # Iterate through "Absentees"
@@ -164,72 +165,89 @@ class dataHandler:
             sampleList = ["Present"] if count == 0 else ["Absent"]    # mark Absent, if student is in Absentees else Present
             prepdData.append(sampleList)    # add this to prepdData[] in-order, to update to sheet
         
-        print(str(datetime.now()) + ": Data: list prepared")
         return prepdData                
 
     
     
-    def getHybridPreparedData(self, imgToText_Presentees, meet_Presentees):
-        list1 = self.getPreparedData(imgToText_Presentees)
-        list2 = self.getPreparedData(meet_Presentees)       
+    def getPresentAbsentData(self, method, imgToText_Presentees, meet_Presentees):
+        if(method == "M"):        
+            list1 = self.getPreparedData(imgToText_Presentees)
+            discrepancies = ["only available for hybrid method"]
 
-        discrepancies = []
+        elif(method == "I"):        
+            list1 = self.getPreparedData(meet_Presentees)
+            discrepancies = ["only available for hybrid method"]
 
-        for i in range(len(list1)):
-            if(list1[i] != list2[i]):
-                discrepancies.append(i+301)
+        elif(method == "H"):                    
+            list1 = self.getPreparedData(imgToText_Presentees)
+            list2 = self.getPreparedData(meet_Presentees)       
+
+            discrepancies = []
+
+            for i in range(len(list1)):
+                if(list1[i] != list2[i]):
+                    discrepancies.append(i+301)
 
         return list1, discrepancies
 
  
  
-    def dataCollector(self, ss, method, meetLink):        
+    def dataCollector(self, ss, method, meetLink, folder):        
         theMeetData = []
-        theTesseractData = []        
+        theTesseractData = []
+        tesseract = img_to_text.tesseract(self.log)
 
         if(ss == "Y"):
-            driver,action,keys = seleniumControl.igniteSelenium(0)
-            meet = meetHandler(driver, action, keys)
-            doLogin = meet.login(self.cfg["google"]["username"], self.cfg["google"]["password"])  # attempt to login to google using username and password
+            driver,action,keys = seleniumControl(0, self.log).igniteSelenium()
+            meet = meetHandler(driver, action, keys, self.log)
+            doLogin = meet.login(self.username, self.password)  # attempt to login to google using username and password
             if(doLogin):        
                 meet.joinMeet("https://meet.google.com/" + meetLink)
                 time.sleep(3)
                 ############take ss here
-                imgDirectory = self.takeSS(driver, meetLink)
+                imgDirectory = self.takeSS(driver, meetLink, folder)
                 #imgDirectory = ""
 
                 if(method == "M"):
-                    theMeetData = meet.getDataFromMeet(meetLink)
+                    theMeetData = meet.getDataFromMeet(meetLink)                    
                 elif(method == "I"):
                     theTesseractData = tesseract.getTextFromImg(imgDirectory)
                 else:
                     theMeetData = meet.getDataFromMeet(meetLink)
                     theTesseractData = tesseract.getTextFromImg(imgDirectory)
+                meet.doLogout()
         else:
             if(method == "M"):
-                driver,action,keys = seleniumControl.igniteSelenium(0)
-                meet = meetHandler(driver, action, keys)
-                doLogin = meet.login(self.cfg["google"]["username"], self.cfg["google"]["password"])  # attempt to login to google using username and password
+                driver,action,keys = seleniumControl(0, self.log).igniteSelenium()
+                meet = meetHandler(driver, action, keys, self.log)
+                doLogin = meet.login(self.username, self.password)  # attempt to login to google using username and password
                 if(doLogin):        
                     meet.joinMeet("https://meet.google.com/" + meetLink)
                     time.sleep(5)
                     theMeetData = meet.getDataFromMeet(meetLink)
+                    meet.doLogout()
             elif(method == "I"):
-                theTesseractData = tesseract.getTextFromImg("images/")
-            else:                
-                theTesseractData = tesseract.getTextFromImg("images/")
-                driver,action,keys = seleniumControl.igniteSelenium(0)
-                meet = meetHandler(driver, action, keys)
-                doLogin = meet.login(self.cfg["google"]["username"], self.cfg["google"]["password"])  # attempt to login to google using username and password
+                theTesseractData = tesseract.getTextFromImg(folder)
+
+            else:
+                theTesseractData = tesseract.getTextFromImg(folder)
+                
+                driver,action,keys = seleniumControl(0, self.log).igniteSelenium()
+                meet = meetHandler(driver, action, keys, self.log)
+                doLogin = meet.login(self.username, self.password)  # attempt to login to google using username and password
                 if(doLogin):        
                     meet.joinMeet("https://meet.google.com/" + meetLink)
                     time.sleep(5)
-                    theMeetData = meet.getDataFromMeet(meetLink)                    
+                    theMeetData = meet.getDataFromMeet(meetLink)
+                    meet.doLogout()
                 
         return theMeetData, theTesseractData
 
-    def takeSS(self, driver, meetLink):
-        meetWindow = gw.getWindowsWithTitle(meetLink + " - Google Chrome")[0]        
+    def takeSS(self, driver, meetLink, folder):
+        #meetWindow = gw.getWindowsWithTitle(meetLink + " - Google Chrome")[0]
+
+        self.log.write("Taking Screenshots from Meet")
+        meetWindow = gw.getWindowsWithTitle("Google Chrome")[0]
         meetWindow.activate()
         meetWindow.resizeTo(1366, 768)
         meetWindow.moveTo(0,0)
@@ -237,25 +255,36 @@ class dataHandler:
         #time.sleep(10)
         pyautogui.click(1050, 100)
         time.sleep(3)
+
+        self.log.write("Getting Number of Participants")
         numOfParticipants = driver.find_element_by_class_name('rua5Nb').text        
         brackets = ["(", ")"]
         for x in numOfParticipants:
             if x in brackets:
                 numOfParticipants = numOfParticipants.replace(x, "")  
-        dir = "autoImg/" + str(datetime.now().strftime("%d-%m-%Y")) + "/"
-        os.mkdir(dir)
+        
+        self.log.write(numOfParticipants + " people found")
+        if(os.path.isdir(folder) == False):
+            os.mkdir(folder)       
 
         if(int(numOfParticipants) > 7):
             numOfScrolls = (int(numOfParticipants)/7.5)
             #pyautogui.moveTo(1360, 640)
             eachDrag = (640-190)/numOfScrolls            
             pyautogui.click(1360, 190)
+            
             for i in range(1, math.ceil(numOfScrolls) + 1):
+                self.log.write("Taking Screenshot " + str(i) + " / " + str(math.ceil(numOfScrolls)))
+
                 pyautogui.click(1360, 205 + (eachDrag*(i - 1)))
                 time.sleep(1)
+
                 im = ImageGrab.grab(bbox=(1010, 190, 1330, 640))  # X1,Y1,X2,Y2
-                im.save(dir + "image"+str(i)+".png")         
+                im.save(folder + "\\image"+str(i)+".png")
+
+            self.log.write(str(math.ceil(numOfScrolls)) + " Screenshots taken")
+
         pyautogui.click(1340, 90)
-        return dir
+        return folder + "\\"
 
 #dataHandler("abcd").takeSS("jkp-pkpv-awa")
