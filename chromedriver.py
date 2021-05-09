@@ -1,9 +1,10 @@
+from datetime import datetime
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.options import Options
-from datetime import datetime
 
 class seleniumControl:
     def __init__(self, instanceNumber, logger):

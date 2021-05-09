@@ -1,8 +1,5 @@
-import json
+import os, json
 from datetime import datetime
-from os import listdir
-from os.path import isfile, join
-import os
 
 class jsonHandler:
 
@@ -32,7 +29,7 @@ class jsonHandler:
 
     
     def getData(self, theDate, sheetId): 
-        listOffiles = [f for f in listdir(self.directory) if isfile(join(self.directory, f))]
+        listOffiles = [f for f in os.listdir(self.directory) if os.path.isfile(os.path.join(self.directory, f))]
         theFile = [a for a in listOffiles if sheetId + "___" + theDate in a]        
 
         if(len(theFile) > 0 and os.path.isfile(self.directory + theFile[-1])):

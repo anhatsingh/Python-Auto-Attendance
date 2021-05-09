@@ -1,8 +1,9 @@
+import PySimpleGUI as sg
 from db import dbms
 from sheets_api_v3 import googleAPI
+
 from dataBuilder_main import dataHandler
 from dataBuilder_json import jsonHandler
-import PySimpleGUI as sg
 
 myDb = dbms()
 

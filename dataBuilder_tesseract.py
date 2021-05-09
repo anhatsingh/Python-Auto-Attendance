@@ -1,10 +1,6 @@
-from cv2 import cv2
-import pytesseract
-import re
-from os import listdir
-import os
-from os.path import isfile, join
+import os, re, pytesseract
 from datetime import datetime
+from cv2 import cv2
 
 # location of tesseract CMD
 

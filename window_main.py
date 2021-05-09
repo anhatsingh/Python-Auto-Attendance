@@ -1,9 +1,10 @@
-from db import dbms
-import PySimpleGUI as sg
-from window_settings import settingsWindow as sw
-from datetime import datetime
-import process_main as func
 import os
+from datetime import datetime
+import PySimpleGUI as sg
+
+from db import dbms
+from window_settings import settingsWindow as sw
+import process_main as func
 from output_logger import logging as logs
 
 sg.theme("Dark2")

@@ -1,17 +1,16 @@
-import time
-from datetime import datetime
-from dataBuilder_meet import meetHandler
-import dataBuilder_tesseract
-from chromedriver import seleniumControl
+import time, math, os, pyautogui
 import pyscreenshot as ImageGrab
 import pygetwindow as gw
-import pyautogui
 import PySimpleGUI as sg
-import math
-import os
-from dataBuilder_json import jsonHandler
+from datetime import datetime
+
+from chromedriver import seleniumControl
 from sheets_api_v3 import googleAPI
 from db import dbms
+
+from dataBuilder_meet import meetHandler
+import dataBuilder_tesseract
+from dataBuilder_json import jsonHandler
 
 myDb = dbms()
 
