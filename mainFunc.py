@@ -2,6 +2,7 @@ from db import dbms
 from sheets_api_v3 import googleAPI
 from dataHandler import dataHandler
 from jsonHandler import jsonHandler
+import PySimpleGUI as sg
 
 myDb = dbms()
 
@@ -9,7 +10,12 @@ def build_Data(values, log):
     myDate = values["dateToAdd"]
     loginData = myDb.getFromSettings("type", "google")
     sheet = myDb.getFromSettings("name", values["subject"])
-    
+
+    if(len(myDb.getFromSettings("type", "subject")) <= 0):
+        log.write("Operation stopped: An error occured", textColor="red")
+        sg.Popup('No Class/Subject added, exiting.', keep_on_top=True)
+        exit()
+   
     compiledData = {
         "date": values["dateToAdd"],
         "credentials": {
@@ -18,7 +24,7 @@ def build_Data(values, log):
             },
         "sheet_id": sheet[0][2] if len(sheet) > 0 else "not_found_in_db",
         "method": "I" if values["I"] else ("M" if values["M"] else ("H" if values["H"] else "U")),
-        "whatToDo": "local" if values["saveData"] else "remote",
+        "whatToDo": "remote" if values["uploadData"] else "local",
         "takeSS": "Y" if values["-SS-"] else "N",
         "meetLink": values["meetLink"],
         "folder": values["-FOLDER-"]
@@ -76,4 +82,4 @@ def main(values, log):
 
     else:
         log.write("No saved data found for: " + inputData["date"] + ", Subject: " + values["subject"], textColor="white", backgroundColor="red")       
-    log.write("---------------------------------------------------------------------------------------------------------------------------------------")
+    #log.write("---------------------------------------------------------------------------------------------------------------------------------------")
