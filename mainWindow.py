@@ -157,6 +157,7 @@ class mainWindow:
                 window.close()
                 sw().main()
                 window = self.createMainWindow()
+                log = logs(window)
 
             if event == "clearLog":
                 window["logbox"].update("")

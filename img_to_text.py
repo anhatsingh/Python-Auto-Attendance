@@ -2,6 +2,7 @@ from cv2 import cv2
 import pytesseract
 import re
 from os import listdir
+import os
 from os.path import isfile, join
 from datetime import datetime
 
@@ -20,11 +21,21 @@ class tesseract:
     # This method takes 1 arguement, the directory to look into, for images.    
     # ==================================================================================================================================
 
+    def load_images_from_folder(self, folder):
+        images = []
+        for filename in os.listdir(folder):
+            img = cv2.imread(os.path.join(folder,filename))
+            if img is not None:
+                images.append(filename)
+        return images
+
     def getTextFromImg(self, directory):        
 
         self.log.write("Extracting text from images")
 
-        images = [f for f in listdir(directory) if isfile(join(directory, f))]      # get a list of all images in the given directory
+        #images = [f for f in listdir(directory) if isfile(join(directory, f))]      # get a list of all images in the given directory
+        images = self.load_images_from_folder(directory)
+        print(images)
         extractedText = []
 
         for i in images:    

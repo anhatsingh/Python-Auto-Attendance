@@ -31,7 +31,8 @@ class settingsWindow:
             for row in data:
                 sheetsData.append([
                     sg.Button(" Sheet " + str(a) + " ", key="open_" + str(row[2])),
-                    sg.Text(": ", size=(6,1), key="subValue_" + str(row[0])),
+                    sg.Text(": ", size=(6,1)),
+                    sg.InputText(str(row[2]), key="subValue_" + str(row[0]), visible=False),
                     sg.InputText(row[1], size=(55,1), key="subName_" + str(row[0])),                                  
                     ])
                 sheetsButton.append([

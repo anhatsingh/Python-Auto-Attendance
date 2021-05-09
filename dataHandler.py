@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from meet import meetHandler
 import img_to_text
@@ -150,9 +151,7 @@ class dataHandler:
         meetWindow = gw.getWindowsWithTitle("Google Chrome")[0]
         meetWindow.activate()
         meetWindow.maximize()
-        max_X = meetWindow.width
-        max_Y = meetWindow.height
-
+        max_X, max_Y = pyautogui.size()          
         #PW=> participants Window
 
         dimensioning = {
@@ -202,18 +201,18 @@ class dataHandler:
             os.mkdir(folder)       
 
         if(int(numOfParticipants) > 7):
-            numOfScrolls = (int(numOfParticipants)/7.5)
+            numOfScrolls = (int(numOfParticipants)/7.5)            
             #pyautogui.moveTo(1360, 640)
             eachDrag = (dimensioning["PW_EndPosition"]["Y"]-dimensioning["PW_StartPosition"]["Y"])/numOfScrolls            
-            pyautogui.click(dimensioning["scroll_first_click"]["X"], dimensioning["scroll_first_click"]["Y"])
+            pyautogui.click(dimensioning["scroll_first_click"]["X"], dimensioning["scroll_first_click"]["Y"])            
             
             for i in range(1, math.ceil(numOfScrolls) + 1):
                 self.log.write("Taking Screenshot " + str(i) + " / " + str(math.ceil(numOfScrolls)))
 
-                pyautogui.click(dimensioning["scroll_first_click"]["X"], dimensioning["scroll_first_click"]["Y"] + (eachDrag*(i - 1)))
+                pyautogui.click(dimensioning["scroll_each_Position"]["X"], dimensioning["scroll_each_Position"]["Y"] + (eachDrag*(i - 1)))                
                 time.sleep(1)
 
-                im = ImageGrab.grab(bbox=(dimensioning["PW_StartPosition"]["X"], dimensioning["PW_StartPosition"]["Y"], dimensioning["PW_EndPosition"]["X"], dimensioning["PW_EndPosition"]["Y"]))  # X1,Y1,X2,Y2
+                im = ImageGrab.grab(bbox=(int(dimensioning["PW_StartPosition"]["X"]), int(dimensioning["PW_StartPosition"]["Y"]), int(dimensioning["PW_EndPosition"]["X"]), int(dimensioning["PW_EndPosition"]["Y"])))  # X1,Y1,X2,Y2
                 im.save(folder + "\\image"+str(i)+".png")
 
             self.log.write(str(math.ceil(numOfScrolls)) + " Screenshots taken")
