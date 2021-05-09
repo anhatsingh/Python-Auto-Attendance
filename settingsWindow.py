@@ -15,18 +15,14 @@ class settingsWindow:
         pass
 
     def styling(self):
-        col1 = [
-            #[sg.Text("Subject:")]
-        ]
-        col2 = [
-            #[sg.Text("Google Sheets ID:")]
-        ]
-        col3 = [
-            #[sg.Text("Action:")]
-        ]
-
         data = myDb.getFromSettings("type", "subject")
+        google = myDb.getFromSettings("type", "google")
+        s_id = myDb.getFromSettings("type", "unique_sheet")
         
+        username = google[0][2] if len(google) !=0 else "Insert google username here"
+        password = google[1][2] if len(google) !=0 else ""       
+        unique_sheet = s_id[0][2] if len(s_id) > 0 else ""
+
         sheetsData = []
         sheetsButton = []
 
@@ -47,13 +43,6 @@ class settingsWindow:
             sheetsData.append([
                 sg.Text("No class/subject added", size=(55,1), text_color="red")
             ])
-
-        google = myDb.getFromSettings("type", "google")
-        username = google[0][2] if len(google) !=0 else "Insert google username here"
-        password = google[1][2] if len(google) !=0 else ""
-
-        s_id = myDb.getFromSettings("type", "unique_sheet")
-        unique_sheet = s_id[0][2] if len(s_id) > 0 else ""
 
         mainLayout = [
             [sg.Text("Google:")],
