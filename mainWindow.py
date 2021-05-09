@@ -162,6 +162,7 @@ class mainWindow:
             if event == "settingsMenu":
                 window.close()
                 sw().main()
+                window = self.createMainWindow()
 
             if event == "clearLog":
                 window["logbox"].update("")
