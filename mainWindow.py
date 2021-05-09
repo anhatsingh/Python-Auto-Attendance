@@ -17,6 +17,9 @@ class mainWindow:
         subjects = []
         for i in myDb.getFromSettings("type", "subject"):
             subjects.append(i[1])
+        
+        if len(subjects) == 0:
+            subjects.append("Please insert a subject")
 
         finalLayout = [
             [
@@ -89,7 +92,7 @@ class mainWindow:
             #logger.updateBox("Event " + str(i) + " " + event)
             
             if event == "beginOp":
-                log.write("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+                log.write("---------------------------------------------------------------------------------------------------------------------------------------")
                 log.write("Operation Begun, Please Wait...", textColor = "blue")
                 func.main(values, log)
                 #init_op(values, logger).startOp()

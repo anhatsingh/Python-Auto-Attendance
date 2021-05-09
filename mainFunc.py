@@ -1,5 +1,5 @@
 from db import dbms
-from google_api_interface import googleAPI
+from sheets_api_v1 import googleAPI
 from dataHandler import dataHandler
 from jsonHandler import jsonHandler
 
@@ -74,4 +74,4 @@ def main(values, log):
 
     else:
         log.write("No saved data found for: " + inputData["date"] + ", Subject: " + values["subject"], textColor="white", backgroundColor="red")       
-    log.write("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    log.write("---------------------------------------------------------------------------------------------------------------------------------------")

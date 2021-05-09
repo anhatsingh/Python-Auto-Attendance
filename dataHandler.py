@@ -1,4 +1,3 @@
-import time
 from datetime import datetime
 from meet import meetHandler
 import img_to_text
@@ -9,15 +8,18 @@ import pyautogui
 import math
 import os
 from jsonHandler import jsonHandler
+from sheets_api_v1 import googleAPI
+from db import dbms
+
+myDb = dbms()
 
 class dataHandler:
 
     def __init__(self, username, password, logger):
         self.username = username
         self.password = password
-        self.log = logger        
-
-    #change this method to get data dynamically from google sheets only, and remove the hard-coded version here.
+        self.log = logger    
+        
         self.classmates = {
             "karanjot" :    {"rollno" : 301,"name" : "Karanjot Singh Bhoon"},
             "1033" :        {"rollno" : 302,"name" : "Anmolpreet Singh"},
@@ -171,11 +173,11 @@ class dataHandler:
     
     def getPresentAbsentData(self, method, imgToText_Presentees, meet_Presentees):
         if(method == "M"):        
-            list1 = self.getPreparedData(imgToText_Presentees)
+            list1 = self.getPreparedData(meet_Presentees)
             discrepancies = ["only available for hybrid method"]
 
         elif(method == "I"):        
-            list1 = self.getPreparedData(meet_Presentees)
+            list1 = self.getPreparedData(imgToText_Presentees)
             discrepancies = ["only available for hybrid method"]
 
         elif(method == "H"):                    
@@ -227,10 +229,10 @@ class dataHandler:
                     theMeetData = meet.getDataFromMeet(meetLink)
                     meet.doLogout()
             elif(method == "I"):
-                theTesseractData = tesseract.getTextFromImg(folder)
+                theTesseractData = tesseract.getTextFromImg(folder + "\\")
 
             else:
-                theTesseractData = tesseract.getTextFromImg(folder)
+                theTesseractData = tesseract.getTextFromImg(folder + "\\")
                 
                 driver,action,keys = seleniumControl(0, self.log).igniteSelenium()
                 meet = meetHandler(driver, action, keys, self.log)
@@ -247,13 +249,48 @@ class dataHandler:
         #meetWindow = gw.getWindowsWithTitle(meetLink + " - Google Chrome")[0]
 
         self.log.write("Taking Screenshots from Meet")
+
         meetWindow = gw.getWindowsWithTitle("Google Chrome")[0]
         meetWindow.activate()
-        meetWindow.resizeTo(1366, 768)
-        meetWindow.moveTo(0,0)
+        meetWindow.maximize()
+        max_X = meetWindow.width
+        max_Y = meetWindow.height
+
+        #PW=> participants Window
+
+        dimensioning = {
+            "show_PW_Button": {
+                "X": (1050/1366)*max_X, 
+                "Y": (100/768)*max_Y
+            },
+            "PW_StartPosition": {      
+                "X": (1010/1366)*max_X, 
+                "Y": (190/768)*max_Y
+            },
+            "PW_EndPosition": {
+                "X": (1330/1366)*max_X, 
+                "Y": (640/768)*max_Y
+            },
+            "scroll_each_Position": {
+                "X": (1360/1366)*max_X, 
+                "Y": (205/768)*max_Y
+            },
+            "scroll_first_click": {
+                "X": (1360/1366)*max_X,
+                "Y": (190/768)*max_Y
+            },
+            "close_PW_Button": {
+                "X": (1340/1366)*max_X, 
+                "Y": (90/768)*max_Y
+            }
+        }
+
+        #meetWindow.resizeTo(1366, 768)
+        #meetWindow.moveTo(0,0)
+
         #pyautogui.click(1340, 90)
         #time.sleep(10)
-        pyautogui.click(1050, 100)
+        pyautogui.click(dimensioning["show_PW_Button"]["X"], dimensioning["show_PW_Button"]["Y"])
         time.sleep(3)
 
         self.log.write("Getting Number of Participants")
@@ -270,21 +307,21 @@ class dataHandler:
         if(int(numOfParticipants) > 7):
             numOfScrolls = (int(numOfParticipants)/7.5)
             #pyautogui.moveTo(1360, 640)
-            eachDrag = (640-190)/numOfScrolls            
-            pyautogui.click(1360, 190)
+            eachDrag = (dimensioning["PW_EndPosition"]["Y"]-dimensioning["PW_StartPosition"]["Y"])/numOfScrolls            
+            pyautogui.click(dimensioning["scroll_first_click"]["X"], dimensioning["scroll_first_click"]["Y"])
             
             for i in range(1, math.ceil(numOfScrolls) + 1):
                 self.log.write("Taking Screenshot " + str(i) + " / " + str(math.ceil(numOfScrolls)))
 
-                pyautogui.click(1360, 205 + (eachDrag*(i - 1)))
+                pyautogui.click(dimensioning["scroll_first_click"]["X"], dimensioning["scroll_first_click"]["Y"] + (eachDrag*(i - 1)))
                 time.sleep(1)
 
-                im = ImageGrab.grab(bbox=(1010, 190, 1330, 640))  # X1,Y1,X2,Y2
+                im = ImageGrab.grab(bbox=(dimensioning["PW_StartPosition"]["X"], dimensioning["PW_StartPosition"]["Y"], dimensioning["PW_EndPosition"]["X"], dimensioning["PW_EndPosition"]["Y"]))  # X1,Y1,X2,Y2
                 im.save(folder + "\\image"+str(i)+".png")
 
             self.log.write(str(math.ceil(numOfScrolls)) + " Screenshots taken")
 
-        pyautogui.click(1340, 90)
+        pyautogui.click(dimensioning["close_PW_Button"]["X"], dimensioning["close_PW_Button"]["Y"])
         return folder + "\\"
 
 #dataHandler("abcd").takeSS("jkp-pkpv-awa")

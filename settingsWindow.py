@@ -3,7 +3,7 @@ from db import dbms
 from init_selenium import seleniumControl
 from meet import meetHandler
 import os.path
-from google_api_interface import googleAPI
+from sheets_api_v1 import googleAPI
 from logger import logging
 
 sg.theme("Dark2")
@@ -26,19 +26,21 @@ class settingsWindow:
         ]
 
         data = myDb.getFromSettings("type", "subject")
-        for row in data:
-            col3.append([
-                sg.Button("  Update  ", key="edit_" + str(row[0]), button_color="blue"), 
-                sg.Button(" Delete ", key="delete_" + str(row[0]), button_color="red"),
-                sg.Button(" Open Sheet", key="open_" + str(row[2]))                
-                ])            
+        
+        if len(data) != 0:            
+            for row in data:
+                col3.append([
+                    sg.Button("  Update  ", key="edit_" + str(row[0]), button_color="blue"), 
+                    sg.Button(" Delete ", key="delete_" + str(row[0]), button_color="red"),
+                    sg.Button(" Open Sheet", key="open_" + str(row[2]))                
+                    ])            
 
-            col1.append([sg.InputText(row[1], size=(55,1), key="subName_" + str(row[0]))])
-            col2.append([sg.Text(row[2], size=(55,1), key="subValue_" + str(row[0]))])
+                col1.append([sg.InputText(row[1], size=(55,1), key="subName_" + str(row[0]))])
+                col2.append([sg.Text(row[2], size=(55,1), key="subValue_" + str(row[0]))])
 
         google = myDb.getFromSettings("type", "google")
-        username = myDb.getFromSettings("type", "google")[0][2]
-        password = myDb.getFromSettings("type", "google")[1][2]       
+        username = myDb.getFromSettings("type", "google")[0][2] if len(google) !=0 else "Insert google username here"
+        password = myDb.getFromSettings("type", "google")[1][2] if len(google) !=0 else ""
 
         mainLayout = [
             [sg.Text("Google:")],
@@ -82,11 +84,17 @@ class settingsWindow:
                     
             if setEvent == "updateGoogleButton":
                 if setValues["usrname"] != "" and setValues["pass"] != "":
-                    myDb.updateSettings("name", ("username", setValues["usrname"], "google", "username"))
-                    myDb.updateSettings("name", ("password", setValues["pass"], "google", "password"))
+                    
+                    if len(myDb.getFromSettings("type", "google")) > 0:                        
+                        myDb.updateSettings("name", ("username", setValues["usrname"], "google", "username"))
+                        myDb.updateSettings("name", ("password", setValues["pass"], "google", "password"))
+                    else:
+                        dataToAdd = [("username", setValues["usrname"], "google"), ("password", setValues["pass"], "google")]
+                        myDb.insertToSettings(dataToAdd) 
+
                     if os.path.exists('token.json'):
                         os.remove('token.json')
-                    api = googleAPI("NoSheet")
+                    api = googleAPI("NoSheet", log)
                     api.connectToGoogle()
                     sg.Popup('Google login information updated', keep_on_top=True)
 
