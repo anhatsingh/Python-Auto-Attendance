@@ -156,3 +156,13 @@ class googleAPI:
         }
         spreadsheet = self.sheet.create(body=spreadsheet,fields='spreadsheetId').execute()
         return spreadsheet.get('spreadsheetId')
+
+
+    def getAllData(self):        
+        result = self.sheet.values().get(           # .get() method of sheets API gets the data from a certain range. Only non-empty rows and columns are returned
+                spreadsheetId = self.sheetID,       # the sheet to get data from
+                range = "Sheet1!A1:ZZ10000"           # get All Data from a very large random range
+            ).execute()                             # execute the request using Google Sheets API
+
+        rows = result.get('values', [])             # get the result obtained as an list of lists
+        return rows

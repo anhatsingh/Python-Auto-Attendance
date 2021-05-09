@@ -39,8 +39,11 @@ class settingsWindow:
                 col2.append([sg.Text(row[2], size=(55,1), key="subValue_" + str(row[0]))])
 
         google = myDb.getFromSettings("type", "google")
-        username = myDb.getFromSettings("type", "google")[0][2] if len(google) !=0 else "Insert google username here"
-        password = myDb.getFromSettings("type", "google")[1][2] if len(google) !=0 else ""
+        username = google[0][2] if len(google) !=0 else "Insert google username here"
+        password = google[1][2] if len(google) !=0 else ""
+
+        s_id = myDb.getFromSettings("type", "unique_sheet")
+        unique_sheet = s_id[0][2] if len(s_id) > 0 else ""
 
         mainLayout = [
             [sg.Text("Google:")],
@@ -48,6 +51,10 @@ class settingsWindow:
                 sg.Column([[sg.Text("Username: ")], [sg.InputText(username, key="usrname", size=(55,1))]]), 
                 sg.Column([[sg.Text("Password: ")], [sg.InputText(password, key="pass", size=(55,1), password_char='*')]]),
                 sg.Column([[sg.Text("          ")], [sg.Button(" Update ", key="updateGoogleButton")]])
+            ],
+            [
+                sg.Column([[sg.Text("Students Data Sheet: ")], [sg.InputText(unique_sheet, key="studentData", size=(55,1))]]),                 
+                sg.Column([[sg.Text("          ")], [sg.Button(" Update ", key="updateUniqueButton")]])
             ],
             [sg.HorizontalSeparator()],
             [
@@ -135,3 +142,26 @@ class settingsWindow:
                     settingsWindow['addSubValue'].update(visible=False)
                 else:
                     settingsWindow['addSubValue'].update(visible=True)
+            
+            elif setEvent == "updateUniqueButton":
+                if setValues["studentData"] != "":
+                    
+                    if len(myDb.getFromSettings("type", "unique_sheet")) > 0:                        
+                        myDb.updateSettings("type", ("Sheet1", setValues["studentData"], "unique_sheet", "unique_sheet"))                        
+                    else:
+                        dataToAdd = [("Sheet1", setValues["studentData"], "unique_sheet")]
+                        myDb.insertToSettings(dataToAdd) 
+
+                    api = googleAPI(setValues["studentData"], log)
+                    api.connectToGoogle()
+                    entireData = api.getAllData()
+
+                    testData = myDb.getFromUnique("id", "0")
+                    if(len(testData) > 0):
+                        myDb.dropUnique()
+
+                    for i in range(1, len(entireData)):
+                        dataToAdd = [(entireData[i][0], entireData[i][1], entireData[i][2])]
+                        myDb.insertToUnique(dataToAdd)
+
+                    sg.Popup('Done', keep_on_top=True)

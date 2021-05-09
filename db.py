@@ -3,33 +3,29 @@ import os.path
 
 
 class dbms:
-    def __init__(self):
-        self.con = sl.connect('mainDb.db')
+    def __init__(self):        
         if os.path.isfile('mainDb.db') == False:
-            self.createSettings()
-            self.createUnique()
-
-    def createSettings(self):        
-        with self.con:
-            self.con.execute("""
-                CREATE TABLE SETTINGS (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                param TEXT,
-                type TEXT
-                );
-            """)
-    
-    def createUnique(self):
-        with self.con:
-            self.con.execute("""
-                CREATE TABLE UNIQUE_DATA (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                roll_no TEXT,
-                full_name TEXT,
-                unique_key TEXT
-                );
-            """)
+            self.con = sl.connect('mainDb.db')
+            with self.con:
+                self.con.execute("""
+                    CREATE TABLE UNIQUE_DATA (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    roll_no TEXT,
+                    full_name TEXT,
+                    unique_key TEXT
+                    );
+                """)
+            with self.con:
+                self.con.execute("""
+                    CREATE TABLE SETTINGS (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    param TEXT,
+                    type TEXT
+                    );
+                """)
+        else:
+            self.con = sl.connect('mainDb.db')
 
     def insertToSettings(self, data):
         sql = 'INSERT INTO SETTINGS (name, param, type) values(?, ?, ?)'
@@ -87,3 +83,15 @@ class dbms:
         cur = self.con.cursor()
         cur.execute(sql, (id,))
         self.con.commit()
+    
+    def dropUnique(self):
+        with self.con:
+            self.con.execute("DROP TABLE UNIQUE_DATA")    
+            self.con.execute("""
+                    CREATE TABLE UNIQUE_DATA (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    roll_no TEXT,
+                    full_name TEXT,
+                    unique_key TEXT
+                    );
+                """)   

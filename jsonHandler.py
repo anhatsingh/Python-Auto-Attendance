@@ -11,6 +11,11 @@ class jsonHandler:
 
 
     def prepLocalSave(self, inputData, values, meetData, tesseractData, prepdData, discrepancies):
+        filename = self.directory  + str(datetime.now().strftime("%Y%m%d%H%M%S")) + "__" + inputData["sheet_id"] + "___" + inputData["date"] + '.json'
+        dirname = os.path.dirname(filename)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+
         data = {}
         data["config"] = {            
             "values" : values
@@ -22,7 +27,7 @@ class jsonHandler:
             "discrepancies" : discrepancies
         }
         
-        with open(self.directory  + str(datetime.now().strftime("%Y%m%d%H%M%S")) + "__" + inputData["sheet_id"] + "___" + inputData["date"] + '.json', 'w') as outfile:
+        with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
     

@@ -7,14 +7,16 @@ myDb = dbms()
 
 def build_Data(values, log):
     myDate = values["dateToAdd"]
+    loginData = myDb.getFromSettings("type", "google")
+    sheet = myDb.getFromSettings("name", values["subject"])
     
     compiledData = {
         "date": values["dateToAdd"],
         "credentials": {
-            "username" : myDb.getFromSettings("type", "google")[0][2],
-            "password" : myDb.getFromSettings("type", "google")[1][2]
+            "username" : loginData[0][2] if len(loginData) > 0 else "not_found_in_db",
+            "password" : loginData[1][2] if len(loginData) > 0 else "not_found_in_db"
             },
-        "sheet_id": myDb.getFromSettings("name", values["subject"])[0][2],
+        "sheet_id": sheet[0][2] if len(sheet) > 0 else "not_found_in_db",
         "method": "I" if values["I"] else ("M" if values["M"] else ("H" if values["H"] else "U")),
         "whatToDo": "local" if values["saveData"] else "remote",
         "takeSS": "Y" if values["-SS-"] else "N",
