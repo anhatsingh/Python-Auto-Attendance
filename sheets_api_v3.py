@@ -67,6 +67,24 @@ class googleAPI:
                 valueInputOption = "USER_ENTERED",  # making this as "USER_ENTERED" updates the data as if it is being typed into the sheet itself.
                 body = body                         # the things to upload to the sheet
             ).execute()                             # execute the request using Google Sheets API
+        
+
+
+        requestBody = {
+            "requests": [
+                {
+                    "autoResizeDimensions": {
+                        "dimensions": {
+                        "sheetId": 0,
+                        "dimension": "COLUMNS",
+                        "startIndex": 0,
+                        "endIndex": len(values[0])
+                        }
+                    },                
+                }
+            ]
+        }
+        response = self.sheet.batchUpdate(spreadsheetId=self.sheetID, body=requestBody).execute()
 
         rowsAffected = result.get('updatedCells')   # get the number of Rows affected, just to verify, that something has changed in sheets.
         return rowsAffected                         # return this number of rows back.

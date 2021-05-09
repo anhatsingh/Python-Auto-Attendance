@@ -1,5 +1,5 @@
 from db import dbms
-from sheets_api_v1 import googleAPI
+from sheets_api_v3 import googleAPI
 from dataHandler import dataHandler
 from jsonHandler import jsonHandler
 
