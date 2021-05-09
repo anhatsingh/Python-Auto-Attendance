@@ -1,10 +1,10 @@
 import PySimpleGUI as sg
 from db import dbms
-from init_selenium import seleniumControl
-from meet import meetHandler
+from chromedriver import seleniumControl
+from dataBuilder_meet import meetHandler
 import os.path
 from sheets_api_v3 import googleAPI
-from logger import logging
+from output_logger import logging
 
 sg.theme("Dark2")
 myDb = dbms()

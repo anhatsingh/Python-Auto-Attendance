@@ -1,10 +1,10 @@
 from db import dbms
 import PySimpleGUI as sg
-from settingsWindow import settingsWindow as sw
+from window_settings import settingsWindow as sw
 from datetime import datetime
-import mainFunc as func
+import process_main as func
 import os
-from logger import logging as logs
+from output_logger import logging as logs
 
 sg.theme("Dark2")
 myDb = dbms()
@@ -167,6 +167,4 @@ class mainWindow:
     def disableWindow(self, window, whatToDo):
         obj = ["dateToAdd", "subject", "I", "M", "H", "U", "-SS-", "uploadData", "meetLink", "-FOLDER-", "beginOp", "clearLog", "settingsMenu"]
         for i in obj:
-            window[i].update(disabled=whatToDo)        
-
-mainWindow().main()
+            window[i].update(disabled=whatToDo)

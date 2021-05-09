@@ -1,15 +1,15 @@
 import time
 from datetime import datetime
-from meet import meetHandler
-import img_to_text
-from init_selenium import seleniumControl
+from dataBuilder_meet import meetHandler
+import dataBuilder_tesseract
+from chromedriver import seleniumControl
 import pyscreenshot as ImageGrab
 import pygetwindow as gw
 import pyautogui
 import PySimpleGUI as sg
 import math
 import os
-from jsonHandler import jsonHandler
+from dataBuilder_json import jsonHandler
 from sheets_api_v3 import googleAPI
 from db import dbms
 
@@ -95,7 +95,7 @@ class dataHandler:
     def dataCollector(self, ss, method, meetLink, folder):        
         theMeetData = []
         theTesseractData = []
-        tesseract = img_to_text.tesseract(self.log)
+        tesseract = dataBuilder_tesseract.tesseract(self.log)
 
         if(ss == "Y"):
             driver,action,keys = seleniumControl(0, self.log).igniteSelenium()
@@ -152,8 +152,8 @@ class dataHandler:
         meetWindow.activate()
         meetWindow.maximize()
         max_X, max_Y = pyautogui.size()          
-        #PW=> participants Window
 
+        #PW=> participants Window
         dimensioning = {
             "show_PW_Button": {
                 "X": (1050/1366)*max_X, 
@@ -219,5 +219,3 @@ class dataHandler:
 
         pyautogui.click(dimensioning["close_PW_Button"]["X"], dimensioning["close_PW_Button"]["Y"])
         return folder + "\\"
-
-#dataHandler("abcd").takeSS("jkp-pkpv-awa")
