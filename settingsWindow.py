@@ -3,7 +3,7 @@ from db import dbms
 from init_selenium import seleniumControl
 from meet import meetHandler
 import os.path
-from sheets_api_v1 import googleAPI
+from sheets_api_v3 import googleAPI
 from logger import logging
 
 sg.theme("Dark2")
@@ -16,27 +16,37 @@ class settingsWindow:
 
     def styling(self):
         col1 = [
-            [sg.Text("Subject:")]
+            #[sg.Text("Subject:")]
         ]
         col2 = [
-            [sg.Text("Google Sheets ID:")]
+            #[sg.Text("Google Sheets ID:")]
         ]
         col3 = [
-            [sg.Text("Action:")]
+            #[sg.Text("Action:")]
         ]
 
         data = myDb.getFromSettings("type", "subject")
         
-        if len(data) != 0:            
-            for row in data:
-                col3.append([
-                    sg.Button("  Update  ", key="edit_" + str(row[0]), button_color="blue"), 
-                    sg.Button(" Delete ", key="delete_" + str(row[0]), button_color="red"),
-                    sg.Button(" Open Sheet", key="open_" + str(row[2]))                
-                    ])            
+        sheetsData = []
+        sheetsButton = []
 
-                col1.append([sg.InputText(row[1], size=(55,1), key="subName_" + str(row[0]))])
-                col2.append([sg.Text(row[2], size=(55,1), key="subValue_" + str(row[0]))])
+        if len(data) != 0:
+            a = 1            
+            for row in data:
+                sheetsData.append([
+                    sg.Button(" Sheet " + str(a) + " ", key="open_" + str(row[2])),
+                    sg.Text(": ", size=(6,1), key="subValue_" + str(row[0])),
+                    sg.InputText(row[1], size=(55,1), key="subName_" + str(row[0])),                                  
+                    ])
+                sheetsButton.append([
+                    sg.Button(" Update ", key="edit_" + str(row[0])), 
+                    sg.Button(" Delete ", key="delete_" + str(row[0]), button_color="red"),                      
+                ])
+                a += 1
+        else:
+            sheetsData.append([
+                sg.Text("No class/subject added", size=(55,1), text_color="red")
+            ])
 
         google = myDb.getFromSettings("type", "google")
         username = google[0][2] if len(google) !=0 else "Insert google username here"
@@ -48,27 +58,48 @@ class settingsWindow:
         mainLayout = [
             [sg.Text("Google:")],
             [
-                sg.Column([[sg.Text("Username: ")], [sg.InputText(username, key="usrname", size=(55,1))]]), 
-                sg.Column([[sg.Text("Password: ")], [sg.InputText(password, key="pass", size=(55,1), password_char='*')]]),
-                sg.Column([[sg.Text("          ")], [sg.Button(" Update ", key="updateGoogleButton")]])
+                sg.Column([
+                    [sg.Text("Username: ", size=(15,1)), sg.InputText(username, key="usrname", size=(55,1))],
+                    [sg.Text("Password: ", size=(15,1)), sg.InputText(password, key="pass", size=(55,1), password_char='*')] ,
+                ]),
+                sg.Column([
+                    [sg.Button(" Update ", key="updateGoogleButton", size=(15,1))]
+                ])
             ],
+
+
+            [sg.Text(" ")],
+            [sg.Text("Student Data:")],
             [
-                sg.Column([[sg.Text("Students Data Sheet: ")], [sg.InputText(unique_sheet, key="studentData", size=(55,1))]]),                 
-                sg.Column([[sg.Text("          ")], [sg.Button(" Update ", key="updateUniqueButton")]])
+                sg.Column([
+                    [sg.Text("Sheet ID: ", size=(15,1)), sg.InputText(unique_sheet, key="studentData", size=(55,1))],                    
+                ]),
+                sg.Column([
+                    [sg.Button(" Update ", key="updateUniqueButton", size=(15,1))]
+                ])
             ],
-            [sg.HorizontalSeparator()],
+
+            [sg.Text(" ")],
+            [sg.Text("Class/Subject Sheets:")],
             [
-                sg.Column(col1),
-                sg.Column(col2),
-                sg.Column(col3)
+                sg.Column(sheetsData),
+                sg.Column(sheetsButton)
             ],
+            [sg.Text(" ")],
             [sg.HorizontalSeparator()],
-            [sg.Text("Add New Subject")],
-            [sg.Column([[sg.InputText("Name of Subject", size=(55,1), key="addSubName")]]), 
-            sg.Column([[sg.Checkbox("Create Google Sheet Automatically", key="createSheet", default=True, enable_events=True)]]),
-            sg.Column([[sg.InputText("Paste Google-Sheets Sheet-ID Here", size=(55,1), key="addSubValue", visible=False)]])
+            [sg.Text(" ")],
+            [sg.Text("Add Class/Subject:")],
+            [
+                sg.Column([
+                    [sg.Text("Name of Subject: ", size=(15,1)), sg.InputText("", key="addSubName", size=(55,1))],
+                    [sg.Text(" ", size=(15,1)), sg.Checkbox("Create Google Sheet Automatically", key="createSheet", default=True, enable_events=True)],
+                    [sg.Text("Google-Sheets ID: ", size=(15,1)), sg.InputText("", size=(55,1), key="addSubValue", disabled_readonly_background_color="#8f9c92", disabled=True)]
+                ]),
+                sg.Column([
+                    [sg.Button(" Add ", key="addSubButton", size=(15,1))]
+                ])
             ],
-            [sg.Button("Add subject", key="addSubButton")],          
+         
         ]
         return mainLayout
 
@@ -111,8 +142,7 @@ class settingsWindow:
                 sg.Popup('Subject information updated', keep_on_top=True)
                     
             elif "delete" in setEvent:
-                deleteId = int(setEvent[7:])
-                print(deleteId)
+                deleteId = int(setEvent[7:])                
                 myDb.deleteFromSettings(deleteId)                
                 settingsWindow.close()
                 settingsWindow = self.createSettingsWindow()                
@@ -123,6 +153,17 @@ class settingsWindow:
                         api = googleAPI("NoSheet", log)
                         api.connectToGoogle()
                         sheetId = api.createSpreadsheet(setValues["addSubName"])
+
+                        un_Data = myDb.getEverythingFromUnique()
+                        finalData = [["Roll Number", "Name"]]
+
+                        if (len(un_Data) > 0):
+                            for i in un_Data:
+                                finalData.append([i[1], i[2]])
+                        api2 = googleAPI(sheetId, log)
+                        api2.connectToGoogle()                        
+                        colAffected = api2.updateSheet("Sheet1!A1:B" + str(len(finalData)), finalData)
+
                     else:
                         sheetId = setValues["addSubValue"]
                     dataToAdd = [(setValues["addSubName"], sheetId, "subject")]
@@ -139,9 +180,9 @@ class settingsWindow:
                     
             elif setEvent == "createSheet":
                 if(setValues["createSheet"]):
-                    settingsWindow['addSubValue'].update(visible=False)
+                    settingsWindow['addSubValue'].update(disabled=True)
                 else:
-                    settingsWindow['addSubValue'].update(visible=True)
+                    settingsWindow['addSubValue'].update(disabled=False)
             
             elif setEvent == "updateUniqueButton":
                 if setValues["studentData"] != "":

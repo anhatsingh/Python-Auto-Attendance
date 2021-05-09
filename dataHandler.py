@@ -9,7 +9,7 @@ import PySimpleGUI as sg
 import math
 import os
 from jsonHandler import jsonHandler
-from sheets_api_v1 import googleAPI
+from sheets_api_v3 import googleAPI
 from db import dbms
 
 myDb = dbms()
