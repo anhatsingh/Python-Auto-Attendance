@@ -49,34 +49,28 @@ class mainWindow:
                 #sg.Radio(text="Save data locally", group_id="method2", key = "saveData", default = False)
             #],                
             [
-                sg.Text("Meet Link:\t"), sg.InputText(disabled_readonly_background_color="#8f9c92", key="meetLink", size=(65,1), disabled=True)
+                sg.Text("Meet Link:", size=(15,1)), 
+                sg.InputText(disabled_readonly_background_color="#8f9c92", key="meetLink", size=(65,1), disabled=True)
             ],
             [
-                sg.Text("Images Folder:\t", key="directoryText"), sg.In(self.tempDirectory, disabled_readonly_background_color="#8f9c92", size=(65, 1), enable_events=True, key="-FOLDER-"), sg.FolderBrowse(size=(11, 1))
-            ],
-         
-                        
-            [
-                sg.Button("Begin", size=(85,1), key="beginOp"), 
+                sg.Text("Images Folder:\t", key="directoryText", visible=False), 
+                sg.In(self.tempDirectory, disabled_readonly_background_color="#8f9c92", size=(65, 1), enable_events=True, key="-FOLDER-", visible=False), 
+                #sg.FolderBrowse(size=(11, 1), visible=False)
+            ],                      
+            [                
+                sg.Button("Begin", size=(73,1), key="beginOp"), 
                 #sg.Button("Take SS Only", size=(27,1), key="ssOnlyButton", disabled=True),     
                 #sg.Button("Download JSON Data Only", size=(27,1), key="jsonDownloadButton", disabled=True)
             ],
-            #    sg.In(size=(25, 1), enable_events=True, key="-FOLDER-"),
-        #        sg.FolderBrowse(),            
             [
-                #sg.HorizontalSeparator(),
-                sg.Text("")
+                sg.Text("Log Box:", key="log_textBox")
             ],
             [
-                sg.Text("Log Box:")
+                sg.Multiline(key="logbox", size=(82,12), autoscroll=True, disabled=True)
             ],
-            [
-                sg.Multiline(key="logbox", size=(96,20), autoscroll=True, disabled=True)
-            ],
-            [                
-                sg.Text("", size=(60,1)),
-                sg.Button("   Clear Logs   ", key="clearLog"),
-                sg.Button("   Settings   ", key="settingsMenu")
+            [ 
+                sg.Button("   Clear Logs   ", key="clearLog", size=(35,1)),
+                sg.Button("   Settings   ", key="settingsMenu", size=(35,1))
             ]
             
         ]
