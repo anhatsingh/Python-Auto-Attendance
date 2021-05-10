@@ -70,7 +70,9 @@ or **build it from source**
 
 * If you have pre-built package, simply run `app.exe` file.
 * If you have downloaded the source-code, run the following command
-     py app.py
+    ```
+    py app.py
+    ```
 
 For more information about the various command line options use `tesseract --help` or `man tesseract`.
 
