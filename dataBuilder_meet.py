@@ -2,10 +2,6 @@ import time, pyautogui, urllib
 import pygetwindow as gw
 from datetime import datetime
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-
 class meetHandler:
 
     def __init__(self, driver, action, keys, logger):

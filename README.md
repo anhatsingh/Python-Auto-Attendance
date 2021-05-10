@@ -46,9 +46,16 @@ or **build it from source**
 ## Dependencies
 
 ### Building the Package
-1. If you are building the package yourself, you need run following commands to install dependencies:
+If you are building the package yourself, follow the steps to build properly:
+1. Install the Python dependencies by running the following pip commands
     * `pip install pysimplegui`
-    * `pip install `
+    * `pip install selenium`
+    * `pip install pyautogui`
+    * `pip install pygetwindow`
+    * `pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib`
+    * `pip install pyscreenshot`
+    * `pip install pytesseract`
+    * `pip install opencv-python`
 
 ## Running Tesseract
 
