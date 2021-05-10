@@ -48,14 +48,16 @@ or **build it from source**
 ### Building the Package
 If you are building the package yourself, follow the steps to build properly:
 1. Install the Python dependencies by running the following pip commands
-    * `pip install pysimplegui`
-    * `pip install selenium`
-    * `pip install pyautogui`
-    * `pip install pygetwindow`
-    * `pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib`
-    * `pip install pyscreenshot`
-    * `pip install pytesseract`
-    * `pip install opencv-python`
+    ```
+    pip install pysimplegui
+    pip install selenium
+    pip install pyautogui
+    pip install pygetwindow
+    pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+    pip install pyscreenshot
+    pip install pytesseract
+    pip install opencv-python
+    ```
 2. Install `UB-Mannheim Windows pre-built binary` of [Tesseract-OCR](https://github.com/tesseract-ocr/tesseract) from [here](https://tesseract-ocr.github.io/tessdoc/Home.html#binaries)
 (Note: Make sure you are installing at default directory only, and not changing it)
 3. Use the included `chromedriver.exe` or download the latest one from [ChromeDriver - WebDriver for Chrome](https://chromedriver.chromium.org/) and keep it in the root directory
