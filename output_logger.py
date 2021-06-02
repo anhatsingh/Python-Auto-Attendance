@@ -7,5 +7,4 @@ class logging:
             self.window['logbox'].print(valuesToUpdate, text_color=textColor, background_color=backgroundColor)
             self.window.Refresh()
         else:
-            #print(valuesToUpdate)
-            pass
+            print(valuesToUpdate)            

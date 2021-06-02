@@ -140,7 +140,7 @@ class googleAPI:
 
         result = self.sheet.values().get(           # .get() method of sheets API gets the data from a certain range. Only non-empty rows and columns are returned
                 spreadsheetId = self.sheetID,       # the sheet to get data from
-                range = "Sheet1!A1:AB117"           # get All Data from a very large random range
+                range = "Sheet1!A1:ZZ117"           # get All Data from a very large random range
             ).execute()                             # execute the request using Google Sheets API
 
         rows = result.get('values', [])             # get the result obtained as an list of lists
@@ -151,7 +151,7 @@ class googleAPI:
             numberOfColumnsFilled = 0
 
         emptyColumn = self.getLetter(numberOfColumnsFilled)
-        self.log.write("Uploading data to column '" + emptyColumn + "'")
+        self.log.write("Uploading data to column '" + emptyColumn + "'")                
 
         return emptyColumn                          # return the column to be updated.
     

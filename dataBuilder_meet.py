@@ -75,13 +75,15 @@ class meetHandler:
 
     def getDataFromMeet(self, meetLink):
         self.log.write("Getting Data from Meet: " + meetLink + ", Please wait")
-        time.sleep(3)
+        time.sleep(2)
 
-        meetWindow = gw.getWindowsWithTitle("Google Chrome")[0]        
+        meetWindow = gw.getWindowsWithTitle("Google Chrome")[0]
         meetWindow.activate()
-        meetWindow.resizeTo(1366, 768)
-        meetWindow.moveTo(0,0)
-        pyautogui.click(1050, 100)
+        meetWindow.maximize()
+        max_X, max_Y = pyautogui.size()
+
+        #pyautogui.click(max_X*(1050/1366), max_Y*(100/768))
+        self.driver.find_element_by_class_name(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd.M9Bg4d").click()
         #self.driver.find_element_by_css_selector('div[jsname="VyLmyb"]').click()        
         time.sleep(2)                
         participants = self.driver.find_elements_by_class_name("ZjFb7c")

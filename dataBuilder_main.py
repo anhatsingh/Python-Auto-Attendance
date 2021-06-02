@@ -5,7 +5,6 @@ import PySimpleGUI as sg
 from datetime import datetime
 
 from chromedriver import seleniumControl
-from sheets_api_v3 import googleAPI
 from db import dbms
 
 from dataBuilder_meet import meetHandler
@@ -185,8 +184,10 @@ class dataHandler:
 
         #pyautogui.click(1340, 90)
         #time.sleep(10)
-        pyautogui.click(dimensioning["show_PW_Button"]["X"], dimensioning["show_PW_Button"]["Y"])
-        time.sleep(3)
+        time.sleep(2)
+        driver.find_element_by_class_name(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd.M9Bg4d").click()
+        #pyautogui.click(dimensioning["show_PW_Button"]["X"], dimensioning["show_PW_Button"]["Y"])
+        time.sleep(2)
 
         self.log.write("Getting Number of Participants")
         numOfParticipants = driver.find_element_by_class_name('rua5Nb').text        
