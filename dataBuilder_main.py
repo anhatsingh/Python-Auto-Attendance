@@ -185,7 +185,7 @@ class dataHandler:
         #pyautogui.click(1340, 90)
         #time.sleep(10)
         time.sleep(2)
-        driver.find_element_by_class_name(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd.M9Bg4d").click()
+        driver.find_element_by_css_selector(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd.M9Bg4d").click()
         #pyautogui.click(dimensioning["show_PW_Button"]["X"], dimensioning["show_PW_Button"]["Y"])
         time.sleep(2)
 
