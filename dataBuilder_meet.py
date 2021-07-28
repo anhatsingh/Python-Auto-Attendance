@@ -1,6 +1,5 @@
 import time, pyautogui, urllib
 import pygetwindow as gw
-from datetime import datetime
 
 class meetHandler:
 
@@ -83,7 +82,7 @@ class meetHandler:
         max_X, max_Y = pyautogui.size()
 
         #pyautogui.click(max_X*(1050/1366), max_Y*(100/768))
-        self.driver.find_element_by_class_name(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd.M9Bg4d").click()
+        self.driver.find_element_by_css_selector(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd.M9Bg4d").click()
         #self.driver.find_element_by_css_selector('div[jsname="VyLmyb"]').click()        
         time.sleep(2)                
         participants = self.driver.find_elements_by_class_name("ZjFb7c")
